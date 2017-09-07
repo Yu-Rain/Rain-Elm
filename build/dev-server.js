@@ -80,7 +80,25 @@ devMiddleware.waitUntilValid(() => {
   _resolve()
 })
 
-var server = app.listen(port)
+// 设置https协议和证书
+//使用nodejs自带的http、https模块
+var https = require('https');
+var fs = require('fs');
+
+// 根据项目的路径导入生成的证书文件
+var privateKey = fs.readFileSync(path.join(__dirname, '../config/private.pem'), 'utf8');
+var certificate = fs.readFileSync(path.join(__dirname, '../config/file.crt'), 'utf8');
+var credentials = {key: privateKey, cert: certificate};
+
+//创建https服务器
+var httpsServer = https.createServer(credentials, app);
+
+// 监听端口号
+var server = httpsServer.listen(port, function () {
+  console.log('HTTPS');
+})
+
+// var server = app.listen(port);
 
 module.exports = {
   ready: readyPromise,
