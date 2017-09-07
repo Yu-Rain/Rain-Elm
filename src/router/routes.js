@@ -2,10 +2,14 @@
  * Created by rain on 2017/9/5.
  */
 import RainElm from '@/rainElm';
-import Msite from '@/pages/msite/msite';
-import Discover from '@/pages/discover/discover';
-import Order from '@/pages/order/order';
-import Profile from '@/pages/profile/profile';
+
+// 路由懒加载
+const Msite = () => import(/*webpackChunkName: "msite"*/ 'pages/msite/msite');
+const Discover = () => import(/*webpackChunkName: "discover"*/ 'pages/discover/discover');
+const Order = () => import(/*webpackChunkName: "order"*/'pages/order/order');
+const Profile = () => import(/*webpackChunkName: "profile"*/'pages/profile/profile');
+
+
 
 
 export default [

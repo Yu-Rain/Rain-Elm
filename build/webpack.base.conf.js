@@ -24,6 +24,7 @@ module.exports = {
     alias: {
       'vue$': 'vue/dist/vue.esm.js',
       '@': resolve('src'),
+      'pages': resolve('src/pages'), // 配置简写路径
     },
     symlinks: false
   },
