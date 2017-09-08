@@ -40,14 +40,24 @@ compiler.plugin('compilation', function (compilation) {
   })
 })
 
+
+
 // proxy api requests
-Object.keys(proxyTable).forEach(function (context) {
-  var options = proxyTable[context]
-  if (typeof options === 'string') {
-    options = { target: options }
-  }
-  app.use(proxyMiddleware(options.filter || context, options))
-})
+app.use(proxyMiddleware(config.dev.proxyTable.context, config.dev.proxyTable.options));
+
+// Object.keys(proxyTable).forEach(function (context) {
+//   var options = proxyTable[context]
+//   if (typeof options === 'string') {
+//     options = { target: options }
+//   }
+//   app.use(proxyMiddleware(options.filter || context, options))
+// })
+
+
+
+
+
+
 
 // handle fallback for HTML5 history API
 app.use(require('connect-history-api-fallback')())

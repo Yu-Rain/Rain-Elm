@@ -27,7 +27,19 @@ module.exports = {
     autoOpenBrowser: false,
     assetsSubDirectory: 'static',
     assetsPublicPath: '/',
-    proxyTable: {},
+    proxyTable: {
+      context: [ // 代理的路径
+        '/bgs',
+        '/shopping'
+      ],
+
+      options: {
+        target: 'https://mainsite-restapi.ele.me',// 目标主机
+        changeOrigin: true, // 虚拟托管网站需要, 那么本地会虚拟一个服务端接收你的请求并代你发送该请求，这样就不会有跨域问题了
+        secure: false, // 默认情况下，不会接受在HTTPS上运行无效证书的后端服务器。
+      }
+
+    },
     // CSS Sourcemaps off by default because relative paths are "buggy"
     // with this option, according to the CSS-Loader README
     // (https://github.com/webpack/css-loader#sourcemaps)
