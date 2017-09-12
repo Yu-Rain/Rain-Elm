@@ -19,26 +19,67 @@
     getAddress
   } from '@/data/getData';
 
+  import {
+    setStore,
+    getStore
+  } from '@/config/localStore';
+
+
   import rainFooter from '@/components/footer';
 
   export default {
     name: 'msite',
     data() {
       return {
-        address: {}, //当前地址
+        location: null, // 存储获取到的定位坐标
+        address: null, //当前地址
+        weather: null, // 当前天气
+        hotSearchWords: [], // 热门搜索词汇
+        entries: [], //首页分类
+      }
+    },
+
+    components: {
+      rainFooter
+    },
+
+
+    watch: {
+      // 监测location属性, 发生变化就重新获取接口数据
+      location(newValue, oldValue) {
+
+        this.initData();
+        setStore('location', newValue);
 
       }
     },
 
-
     async mounted() {
-
 
       try {
 
         let position = await getPosition();
 
-        getAddress(position.coords.latitude, position.coords.longitude).then(response => {
+        this.location = {
+          latitude:position.coords.latitude,
+          longitude:position.coords.longitude
+        };
+
+      }catch (error) {
+        console.log('获取定位坐标失败');
+        console.log(error);
+        // 从本地存储获取坐标
+        this.location = getStore('location');
+      }
+
+
+    },
+
+    methods: {
+      initData() {
+
+        // 获取地址信息
+        getAddress(this.location.latitude, this.location.longitude).then(response => {
           this.address = response;
         }).catch(error => {
           console.log('没有获取到地址');
@@ -46,18 +87,33 @@
         });
 
 
-      }catch (error) {
+        // 获取天气信息
+        getWeather(this.location.latitude, this.location.longitude).then(response => {
+          this.weather = response;
 
-        console.log(error);
-      }
+        }).catch(reject => {
+            console.log(reject);
+          }
+        );
 
 
+
+        // 获取热门搜索词汇
+        getHotSearchWords(this.location.latitude, this.location.longitude).then(response => {
+          this.hotSearchWords = response;
+        });
+
+        // 获取首页分类
+        getEntries(this.location.latitude, this.location.longitude).then(response => {
+          this.entries = response[0].entries;
+
+        });
+
+      },
     },
 
 
-    components: {
-      rainFooter
-    },
+
 
 
 
