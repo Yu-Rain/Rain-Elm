@@ -126,12 +126,12 @@
 
 
 
-<style>
-
+<style lang="scss">
+@import "../../scss/mixin.scss";
   h4 {
-    width: 3rem;
+    width: pxToRem(300px);
     border: 1px solid red;
-    padding: 0.1rem 0.2rem;
+    @include property-of-rem('padding', 8px, 16px);
   }
 
 </style>

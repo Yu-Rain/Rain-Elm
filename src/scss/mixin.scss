@@ -1,0 +1,68 @@
+
+/* font-size根据dpr设置数值. */
+@mixin font-dpr($font-size) {
+  font-size: $font-size;
+
+  [data-dpr="2"] & {
+    font-size: $font-size * 2;
+  }
+
+  [data-dpr="3"] & {
+    font-size: $font-size * 3;
+  }
+
+  [data-dpr="4"] & {
+    font-size: $font-size * 4;
+  }
+
+}
+
+
+
+/* px 转换为 rem */
+$default-rem: 75px; // 根据设计稿计算出来默认的1rem值.
+
+// 函数转换
+@function pxToRem($px...) {
+
+  $len: length($px); // 返回$px可变参数的列表长度值,
+  $remValues: '';
+
+  @for $i from 1 through $len {
+    //nth($px, $i) 返回$px参数列表中的第i个值.
+    // 使用传入的 px 除以设计稿的基准值 * 1rem, 将px转换为rem.
+    $value: nth($px, $i) / $default-rem * 1rem;
+
+    $remValues: #{$remValues + $value + " "};
+  }
+  @return $remValues;
+}
+
+// 根据传入的属性设置rem值.
+@mixin property-of-rem($property, $px...) {
+
+  #{$property}: pxToRem($px...);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
