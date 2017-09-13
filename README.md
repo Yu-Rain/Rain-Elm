@@ -20,6 +20,10 @@ http://blog.csdn.net/chenyufeng1991/article/details/60340006 
 	http://z00w00.blog.51cto.com/515114/1031287
 	
 	
+	
+#屏幕尺寸, 分辨率, 像素密度
+http://ued.ourfuture.cn/fed/4200.html	
+	
 
 # 接口
 ## msite

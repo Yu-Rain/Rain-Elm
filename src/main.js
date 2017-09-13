@@ -4,7 +4,7 @@
 
 import Vue from 'vue';
 import router from './router';
-import rainElm from './rainElm';
+import './config/rem.js'; // 引入rem布局.
 
 Vue.config.productionTip = false;
 
