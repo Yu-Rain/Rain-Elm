@@ -3,7 +3,7 @@
     <div class="wrap">
       <h3>这是外卖页面</h3>
 
-      <h4>{{address.name}}</h4>
+      <h4>{{addressName}}</h4>
 
 
     </div>
@@ -16,14 +16,17 @@
 <script type="text/ecmascript-6">
   import {
     getPosition,
-    getAddress
+    getAddress,
+    getWeather,
+    getHotSearchWords,
+    getEntries,
+    getShopList,
   } from '@/data/getData';
 
   import {
     setStore,
     getStore
   } from '@/config/localStore';
-
 
   import rainFooter from '@/components/footer';
 
@@ -36,23 +39,21 @@
         weather: null, // 当前天气
         hotSearchWords: [], // 热门搜索词汇
         entries: [], //首页分类
+        addressName: '获取地址中...',// 地址名称
       }
     },
-
     components: {
       rainFooter
     },
 
-
     watch: {
       // 监测location属性, 发生变化就重新获取接口数据
       location(newValue, oldValue) {
-
         this.initData();
         setStore('location', newValue);
-
       }
     },
+
 
     async mounted() {
 
@@ -81,6 +82,7 @@
         // 获取地址信息
         getAddress(this.location.latitude, this.location.longitude).then(response => {
           this.address = response;
+          this.addressName = response.name;
         }).catch(error => {
           console.log('没有获取到地址');
           console.log(error);
@@ -90,6 +92,7 @@
         // 获取天气信息
         getWeather(this.location.latitude, this.location.longitude).then(response => {
           this.weather = response;
+
 
         }).catch(reject => {
             console.log(reject);
@@ -110,9 +113,7 @@
         });
 
       },
-    },
-
-
+    }
 
 
 
@@ -126,12 +127,6 @@
 
 
 
-<style lang="scss">
-@import "../../scss/mixin.scss";
-  h4 {
-    width: pxToRem(300px);
-    border: 1px solid red;
-    @include property-of-rem('padding', 8px, 16px);
-  }
+<style>
 
 </style>

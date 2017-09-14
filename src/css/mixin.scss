@@ -19,6 +19,9 @@
 
 
 
+
+
+
 /* px 转换为 rem */
 $default-rem: 75px; // 根据设计稿计算出来默认的1rem值.
 
@@ -44,6 +47,12 @@ $default-rem: 75px; // 根据设计稿计算出来默认的1rem值.
   #{$property}: pxToRem($px...);
 }
 
+
+@mixin flex-content($justify: space-between, $align: center) {
+  display: flex;
+  justify-content: $justify;
+  align-items: $align;
+}
 
 
 

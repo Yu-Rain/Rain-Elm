@@ -24,13 +24,6 @@ http://blog.csdn.net/chenyufeng1991/article/details/60340006 
 #屏幕尺寸, 分辨率, 像素密度
 http://ued.ourfuture.cn/fed/4200.html
 
-#SASS中文网
-
-http://www.sasschina.com/guide/
-	
-####SASS和SCSS异同
-http://sass.bootcss.com/docs/scss-for-sass-users/
-
 #安装scss
 在package.json文件中的 devDependencies 中添加以下几项(版本号可能不一样)
 	

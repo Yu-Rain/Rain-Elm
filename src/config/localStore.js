@@ -1,6 +1,3 @@
-/**
- * Created by rain on 2017/9/12.
- */
 
 // 将值存储在localStorage
 export const setStore = (name, content) => {

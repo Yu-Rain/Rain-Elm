@@ -1,4 +1,5 @@
 
+
 $plain-font:'Helvetica Neue',Tahoma,Arial,PingFangSC-Regular,'Hiragino Sans GB','Microsoft Yahei',sans-serif;
 
 
@@ -6,6 +7,7 @@ $plain-font:'Helvetica Neue',Tahoma,Arial,PingFangSC-Regular,'Hiragino Sans GB',
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+  //font-size: 0;
 }
 
 html {
@@ -15,7 +17,6 @@ html {
   line-height: 1.2;
   min-height: 100%;
   user-select: none;
-
   /* 让字体变细一些 */
   -webkit-font-smoothing: antialiased;
   text-size-adjust: none;
@@ -41,7 +42,7 @@ img {
   width: 100%;
 }
 
-
+// TODO: 如何兼容
 /*隐藏滚动条*/
 ::-webkit-scrollbar {
   width: 0;
@@ -63,5 +64,5 @@ img {
 ::-webkit-scrollbar-thumb:window-inactive {
   background: white;
 }
-
+/*隐藏滚动条*/
 

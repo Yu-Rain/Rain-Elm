@@ -17,6 +17,26 @@ export const getPosition = function () {
 export const getAddress = (latitude, longitude) => fetch('/bgs/poi/reverse_geo_coding', {latitude, longitude});
 
 
+// 获取天气数据
+export const getWeather = (latitude, longitude) => fetch('/bgs/weather/current', {latitude, longitude});
+
+// 热门搜索词汇
+export const getHotSearchWords = (latitude, longitude) => fetch('/shopping/v3/hot_search_words', {latitude, longitude});
+
+// 获取分类
+export const getEntries = (latitude, longitude) => fetch('/shopping/v2/entries', {
+  'templates[]':'main_template',
+  latitude, longitude
+});
+
+// 获取推荐商家列表
+export const getShopList = (latitude, longitude, offset) => fetch('/shopping/restaurants', {
+  latitude, longitude,
+  offset: offset,
+  limit: 20,
+  'extras[]': 'activities',
+  terminal: 'h5'
+});
 
 
 

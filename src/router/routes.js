@@ -10,6 +10,7 @@ const Order = () => import(/*webpackChunkName: "order"*/'pages/order/order');
 const Profile = () => import(/*webpackChunkName: "profile"*/'pages/profile/profile');
 
 
+
 export default [
   {
     path: '/',
