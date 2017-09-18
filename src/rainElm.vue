@@ -1,5 +1,6 @@
 <template>
   <div id="rain-elm">
+
     <router-view></router-view>
 
   </div>

@@ -1,7 +1,7 @@
 let imgBaseURL = 'https://fuss10.elemecdn.com';
 
 // 根据img hash值处理图片路径.
-export const getImgPath = (imageHash, size) => {
+function imgURL (imageHash, size){
       if (!imageHash) {
         return;
       }
@@ -14,4 +14,10 @@ export const getImgPath = (imageHash, size) => {
       var path = imgBaseURL + '/' + first + '/' + second + '/' + third + '.' + imgType + '?' + 'imageMogr/thumbnail/!' + size + 'r/gravity/Center/crop/' + size + '/';
 
       return path;
+};
+
+export const mixinOfImgURL = {
+  methods: {
+        imgURL,
+      }
 };

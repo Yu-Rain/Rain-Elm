@@ -48,6 +48,48 @@
       </header>
       <!-- 头部 结束 -->
 
+      <!-- 分类 -->
+      <div class="entries" v-show="entries">
+
+        <div class="entry-wrap" @touchstart="start" @touchmove="move" @touchend="endOrCancel" @touchcancel="endOrCancel" v-if="entries.length">
+
+
+          <!-- 分类第一页 -->
+          <div class="entries-page" :class="{active: isActive}" >
+            <router-link to="" v-for="(n, index) in 8" :key="index">
+
+              <img :src="imgURL(entries[index].image_hash, '90x90')" alt="">
+              <p>{{entries[index].name}}</p>
+
+            </router-link>
+          </div>
+
+          <!-- 分类第2页 -->
+          <div class="entries-page" :class="{active: !isActive}">
+
+            <router-link to="" v-for="(n, index) in (entries.length - 8)" :key="index">
+
+              <img :src="imgURL(entries[index + 8].image_hash, '90x90')" alt="">
+              <p>{{entries[index + 8].name}}</p>
+            </router-link>
+
+
+          </div>
+
+        </div>
+
+
+        <div class="dots">
+
+          <div class="dot" :class="{active: isActive}"></div>
+          <div class="dot" :class="{active: !isActive}"></div>
+
+        </div>
+
+      </div>
+
+      <!-- 分类结束 -->
+
 
     </div>
 
@@ -73,7 +115,7 @@
   } from '@/config/localStore';
 
   import {
-    getImgPath
+    mixinOfImgURL,
   } from '@/config/until'
 
 
@@ -91,7 +133,12 @@
         hotSearchWords: [], // 热门搜索词汇
         entries: [], //首页分类
         addressName: '获取地址中...',// 地址名称
-
+        preClientX: 0, // 记录手指触摸开始时的坐标.
+        touchPage: null, // 记录手指触摸的元素
+        touchPageSibling: null, //记录手指触摸的兄弟元素.
+        touchPageX: 0, // 记录手指触摸到元素的X.
+        touchPageSiblingX: 0, // 记录触摸元素兄弟元素的X.
+        isActive: true, // 判断是否添加active类.
 
       }
     },
@@ -108,6 +155,7 @@
       }
     },
 
+    mixins: [mixinOfImgURL],
 
     async mounted() {
 
@@ -133,6 +181,7 @@
     },
 
     methods: {
+
       initData() {
         console.log('initData');
 
@@ -167,21 +216,141 @@
 
         // 获取首页分类
         getEntries(this.location.latitude, this.location.longitude).then(response => {
-          this.entries = response.entries;
+          this.entries = response[0].entries;
 
         });
 
       },
+//      imgURL: getImgPath,
 
-      imgURL: getImgPath
+      // 分类的触摸事件
+      start: function(event) {
+
+        event = event || window.event;
+
+        // 获取当前页面的元素.
+        this.touchPage = document.querySelector('.entries-page.active');
+
+        // 获取当前页面元素的兄弟元素
+        this.touchPageSibling = this.touchPage.nextElementSibling || this.touchPage.previousElementSibling;
+
+
+        this.touchPageSibling.style.display = 'block';
+
+        // 记录手指触摸的X轴坐标值
+        this.preClientX = event.changedTouches[0].clientX;
+
+      },
+
+      move: function(event){
+        event = event || window.event;
+
+        // 计算手指移动距离
+        var currentx = event.changedTouches[0].clientX;
+        var movex = this.preClientX - currentx;
+
+        // 计算兄弟元素的translatex的距离
+        var siblingx = 0;
+        if (movex < 0) { // 代表向右滑动, mx为负, tpx为正, 等于-mx, tpsx为负, 等于750-Math.abs(mx)之后取负值.
+          siblingx = -document.documentElement.clientWidth - movex;
+
+        } else { // 代表向左滑动, mx为正, tpx为负, 等于-mx, tpsx为正, 等于750-mx
+          siblingx = document.documentElement.clientWidth - movex;
+        }
+
+        // 记录元素平移的坐标
+        this.touchPageX = -movex;
+        this.touchPageSiblingX = siblingx;
+
+        // 更改元素的transform
+        this.touchPage.style.transform = 'translate3d(' + this.touchPageX + 'px, 0, 0)';
+        this.touchPageSibling.style.transform = 'translate3d(' + this.touchPageSiblingX + 'px, 0, 0)';
+
+
+      },
+
+      endOrCancel: async function () {
+
+        // 元素样式字符串.
+        var touchPageStyle = '';
+        var touchPageSiblingStyle = '';
+
+        // 设置过渡时间
+        this.touchPage.setAttribute('style', 'transition: transform 300ms ease-in-out;');
+        this.touchPageSibling.setAttribute('style', 'display: block;transition: transform 300ms ease-in-out;');
+
+
+        // 比较两个页面移动的距离, 显示绝对值小的页面.
+        if (Math.abs(this.touchPageX) < Math.abs(this.touchPageSiblingX)) {
+
+          touchPageStyle = this.touchPage.getAttribute('style') + ';transform: translate3d(0px, 0px, 0px);';
+
+          var x = document.documentElement.clientWidth;
+          if (this.touchPageX > 0) { // 向右滑
+            x = -document.documentElement.clientWidth;
+          }
+
+          touchPageSiblingStyle = this.touchPageSibling.getAttribute('style') + ';transform: translate3d('+x+'px, 0px, 0px);';
+
+        } else {
+          var x = -document.documentElement.clientWidth;
+          if (this.touchPageX > 0) { // 向右滑
+            x = document.documentElement.clientWidth;
+          }
+
+          touchPageStyle = this.touchPage.getAttribute('style') + 'transform: translate3d('+x+'px, 0px, 0px);';
+          touchPageSiblingStyle = this.touchPageSibling.getAttribute('style') + ';transform: translate3d(0px, 0px, 0px);';
+
+        }
+
+
+        var timer01Promise = new Promise((resolve, reject) => {
+
+          // 5毫秒后再设置transform, 否则没有过渡
+          var timer01Id = setTimeout(()=> {
+
+            this.touchPage.setAttribute('style', touchPageStyle);
+            this.touchPageSibling.setAttribute('style', touchPageSiblingStyle);
+            console.log('timer01Id', timer01Id);
+            resolve(timer01Id);
+          }, 5);
+        });
+        var timer02Promise = new Promise((resolve, reject) => {
+
+          // 305毫秒后再清除所有的内联样式
+          var timer02Id = setTimeout(()=>{
+            this.touchPage.setAttribute('style', '');
+            this.touchPageSibling.setAttribute('style', '');
+
+            if(Math.abs(this.touchPageX) > Math.abs(this.touchPageSiblingX)) {
+              this.isActive = !this.isActive;
+            }
+            console.log('timer02Id', timer02Id);
+
+            resolve(timer02Id);
+
+          }, 300);
+
+
+        });
+
+        // 执行定时器, 清除定时器.
+        try {
+          const timer01Id = await timer01Promise;
+          console.log('timer01', timer01Id);
+          clearTimeout(timer01Id);
+
+          const timer02Id = await timer02Promise;
+          console.log('timer02', timer02Id);
+          clearTimeout(timer02Id);
+
+        } catch(error) {
+          console.log('timer error', error);
+        }
+
+      }
+
     }
-
-
-
-
-
-
-
 
   }
 </script>
@@ -275,6 +444,74 @@
         }
 
       }
+
+
+      /* 分类 */
+      .entries {
+        background-color: #fff;
+        position: relative;
+        height: pxToRem(354px);
+
+        .entry-wrap {
+          position: relative;
+          overflow: hidden;
+          height: 100%;
+
+          .entries-page {
+            /* 使用绝对定位的方式, 让元素脱离文本流, 这样在手指拖动元素时, 才不会将整体页面一起拖动.*/
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            display: none;
+            transform: translateX(-100%);
+            &.active {
+              display: block;
+              transform: none;
+            }
+
+            &::after {
+              content: '';
+              display: table;
+              clear: both;
+            }
+
+            a {
+              display: block;
+              float: left;
+              width: 25%;
+              text-align: center;
+              margin-top: pxToRem(22px);
+              font-size: pxToRem(24px);
+              img {
+                width: pxToRem(90px);
+                height: pxToRem(90px);
+              }
+            }
+
+          }
+        }
+
+        .dots {
+          position: absolute;
+          bottom: 10px;
+          left: 50%;
+          transform: translateX(-50%);
+
+          .dot {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 4px;
+            background-color: #ccc;
+            &.active {
+              background-color: #555;
+            }
+          }
+
+        }
+
+      }
+
 
 
     }
