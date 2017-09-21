@@ -13,7 +13,7 @@
             <i class="fa fa-caret-down"></i>
           </div>
 
-          <div class="weather">
+          <div class="weather" v-if="weather">
             <div>
               <p>{{temperature}}度</p>
               <p>{{description}}</p>
@@ -51,7 +51,7 @@
       <!-- 分类 -->
       <div class="entries" v-show="entries">
 
-        <div class="entry-wrap" @touchstart="start" @touchmove="move" @touchend="endOrCancel" @touchcancel="endOrCancel" v-if="entries.length">
+        <div class="entry-wrap" @touchstart="start" @touchmove="move" @touchend="endOrCancel"  v-if="entries.length">
 
 
           <!-- 分类第一页 -->
@@ -78,7 +78,6 @@
 
         </div>
 
-
         <div class="dots">
 
           <div class="dot" :class="{active: isActive}"></div>
@@ -86,10 +85,18 @@
 
         </div>
 
-      </div>
 
+      </div>
       <!-- 分类结束 -->
 
+
+
+      <!-- 推荐商家 标题-->
+      <h3 class="list-title">推荐商家</h3>
+
+      <!-- 商家列表 组件-->
+      <shop-list :locationProps="location"></shop-list>
+      <!-- 商家列表 组件结束-->
 
     </div>
 
@@ -97,7 +104,6 @@
 
   </div>
 </template>
-
 
 <script type="text/ecmascript-6">
   import {
@@ -121,6 +127,8 @@
 
   import rainFooter from '@/components/footer';
 
+  import shopList from '@/components/shopList';
+
   export default {
     name: 'msite',
     data() {
@@ -143,13 +151,14 @@
       }
     },
     components: {
-      rainFooter
+      rainFooter,
+      shopList
     },
 
     watch: {
       // 监测location属性, 发生变化就重新获取接口数据
       location(newValue, oldValue) {
-        console.log('watch');
+        console.log('msite watch');
         this.initData();
         setStore('location', newValue);
       }
@@ -158,7 +167,7 @@
     mixins: [mixinOfImgURL],
 
     async mounted() {
-
+      console.log('msite mounted');
       try {
 
         let position = await getPosition();
@@ -232,11 +241,10 @@
         this.touchPage = document.querySelector('.entries-page.active');
 
         // 获取当前页面元素的兄弟元素
-        this.touchPageSibling = this.touchPage.nextElementSibling || this.touchPage.previousElementSibling;
+        this.touchPageSibling = touchPage.nextElementSibling || touchPage.previousElementSibling;
 
 
         this.touchPageSibling.style.display = 'block';
-
         // 记录手指触摸的X轴坐标值
         this.preClientX = event.changedTouches[0].clientX;
 
@@ -294,6 +302,7 @@
 
         } else {
           var x = -document.documentElement.clientWidth;
+
           if (this.touchPageX > 0) { // 向右滑
             x = document.documentElement.clientWidth;
           }
@@ -315,9 +324,10 @@
             resolve(timer01Id);
           }, 5);
         });
+
         var timer02Promise = new Promise((resolve, reject) => {
 
-          // 305毫秒后再清除所有的内联样式
+          // 300毫秒后再清除所有的内联样式
           var timer02Id = setTimeout(()=>{
             this.touchPage.setAttribute('style', '');
             this.touchPageSibling.setAttribute('style', '');
@@ -337,11 +347,9 @@
         // 执行定时器, 清除定时器.
         try {
           const timer01Id = await timer01Promise;
-          console.log('timer01', timer01Id);
           clearTimeout(timer01Id);
 
           const timer02Id = await timer02Promise;
-          console.log('timer02', timer02Id);
           clearTimeout(timer02Id);
 
         } catch(error) {
@@ -351,7 +359,6 @@
       }
 
     }
-
   }
 </script>
 
@@ -445,7 +452,6 @@
 
       }
 
-
       /* 分类 */
       .entries {
         background-color: #fff;
@@ -463,7 +469,10 @@
             width: 100%;
             height: 100%;
             display: none;
+            /* TODO: transform渲染效率比定位高??? */
             transform: translateX(-100%);
+            /*top: 0;*/
+            /*left: 0;*/
             &.active {
               display: block;
               transform: none;
@@ -509,6 +518,18 @@
           }
 
         }
+
+      }
+
+      /* 推荐商家 */
+      h3.list-title {
+        margin-top: pxToRem(20px);
+        font-weight: 600;
+        /*<!--@include font-dpr(16px);-->*/
+        font-size: pxToRem(32px);
+
+        @include property-of-rem(padding, 32px, 20px, 0px);
+        background-color: #fff;
 
       }
 
