@@ -5,7 +5,7 @@
       <i class="fa fa-star" v-for="n in 5"></i>
 
     </div>
-    <div class="star-yellow" :style="{width: starWidth}">
+    <div class="star-yellow" :style="{width: (rating * 20) + '%'}">
       <i class="fa fa-star" v-for="n in 5"></i>
     </div>
 
@@ -25,7 +25,7 @@
     },
     computed: {
       starWidth() {
-        return (this.rating * 20) + '%';
+        return (this.rating * 20) + '%;';
       }
 
     },

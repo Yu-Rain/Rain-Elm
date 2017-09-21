@@ -121,6 +121,8 @@
     data() {
       return {
         shops:[], // 商铺列表
+        offset: 0,
+        isBottom: true, // 防止多次触底.
       }
     },
 
@@ -177,7 +179,53 @@
 
       },
 
+
+      // 上拉加载更多页面
+      loadMore(event) {
+        console.log('loadMore');
+
+
+        event = event || window.event;
+
+        var body = document.body;
+
+        if (body.scrollTop + body.offsetHeight >= body.scrollHeight) {
+
+          console.log('到达底部');
+          if (!this.isBottom) {
+            console.log('l false');
+            return
+          }
+
+          this.isBottom = false;
+
+          console.log('l true');
+
+          this.offset += 20;
+          getShopList(this.locationProps.latitude, this.locationProps.longitude, this.offset).then(response => {
+            console.log('this.offset', this.offset);
+
+            this.shops = this.shops.concat(response);
+
+            this.isBottom = true;
+          });
+
+        }
+
+
+      }
+
+
+
     },
+
+    created() {
+      window.addEventListener('scroll', this.loadMore);
+    },
+
+    beforeDestroy() {
+      window.removeEventListener('scroll', this.loadMore, false);
+    }
 
 
 

@@ -2,10 +2,10 @@
   <div id="msite">
     <div class="wrap">
       <!-- 头部 -->
-      <header class="msite-header">
+      <!--<header class="msite-header">-->
 
         <!-- 地址天气 -->
-        <div class="header-top">
+        <div class="header-top msite-header">
 
           <div class="location-name">
             <i class="fa fa-map-marker"></i>
@@ -27,7 +27,7 @@
         <!-- 地址天气 结束-->
 
         <!-- 搜索 -->
-        <div class="search">
+        <div class="search msite-header">
           <router-link to="" class="link">
             <i class="fa fa-search"></i>
             <span>搜索商家, 商品名称</span>
@@ -36,7 +36,7 @@
         <!-- 搜索 结束-->
 
         <!-- 热门搜索词汇 -->
-        <div class="hot">
+        <div class="hot msite-header">
           <div class="keyword">
             <router-link to="" v-for="(a, index) in hotSearchWords" :key="index">{{a.word}}</router-link>
           </div>
@@ -45,7 +45,7 @@
         <!-- 热门搜索词汇 结束-->
 
 
-      </header>
+      <!--</header>-->
       <!-- 头部 结束 -->
 
       <!-- 分类 -->
@@ -370,84 +370,87 @@
 
     .wrap {
       /* msite页的头部 */
+
+      /* msite页的头部 */
       .msite-header {
         background-image: linear-gradient(90deg, #0af, #0085ff);
         color: #fff;
         @include property-of-rem(padding, 20px, 28px);
+      }
 
-        /* 地址, 天气 */
-        .header-top {
-          @include flex-content();
-          @include property-of-rem(margin-bottom, 14px);
+      /* 地址, 天气 */
+      .header-top {
+        @include flex-content();
+        padding-bottom: 0px;
+        /* 地址 */
+        & > .location-name {
+          @include flex-content(flex-start);
 
-          /* 地址 */
-          & > .location-name {
-            @include flex-content(flex-start);
-
-            /*<!--@include font-dpr(18px);-->*/
-            font-size: pxToRem(36px);
-            font-weight: 700;
-            width: 60%;
-            @include property-of-rem(height, 69px);
-            /* 地址名称 */
-            span {
-              margin: pxToRem(0px, 10px);
-              max-width: 80%;
-              overflow: hidden;
-              white-space: nowrap;
-              text-overflow: ellipsis;
-              display: inline-block;
-              vertical-align: bottom;
-            }
-
-          }
-
-          /* 天气 */
-          & .weather {
-            @include flex-content();
-            /*<!--@include font-dpr(12px);-->*/
-            font-size: pxToRem(24px);
-            text-align: right;
-            img {
-              @include property-of-rem(width, 55px);
-              @include property-of-rem(height, 55px);
-              @include property-of-rem(margin-left, 8px);
-            }
-          }
-        }
-
-        /* 搜索 */
-        .search {
-          @include property-of-rem(margin-bottom, 14px);
-          .link {
-            width: 100%;
-            @include property-of-rem(height, 72px);
-            @include flex-content(center);
-            /*<!--@include font-dpr(13px);-->*/
-            font-size: pxToRem(26px);
-            background-color: #fff;
-            color: rgb(102, 102, 102);
-            span {
-              @include property-of-rem(margin-left, 10px);
-            }
-          }
-        }
-
-        /* 热门搜索词汇 */
-        .hot {
-          padding-bottom: pxToRem(10px);
-          font-size: pxToRem(24px);
-
-          .keyword {
+          /*<!--@include font-dpr(18px);-->*/
+          font-size: pxToRem(36px);
+          font-weight: 700;
+          width: 60%;
+          @include property-of-rem(height, 69px);
+          /* 地址名称 */
+          & span {
+            margin: pxToRem(0px, 10px);
+            max-width: 80%;
+            overflow: hidden;
             white-space: nowrap;
-            overflow-x: auto;
-
-            a {
-              color: #fff;
-              @include property-of-rem(margin-right, 30px);
-            }
+            text-overflow: ellipsis;
+            display: inline-block;
+            vertical-align: bottom;
           }
 
+        }
+
+        /* 天气 */
+        & .weather {
+          @include flex-content();
+          /*<!--@include font-dpr(12px);-->*/
+          font-size: pxToRem(24px);
+          text-align: right;
+          img {
+            @include property-of-rem(width, 55px);
+            @include property-of-rem(height, 55px);
+            @include property-of-rem(margin-left, 8px);
+          }
+        }
+      }
+
+      /* 搜索 */
+      .search {
+        margin-top: -1px;
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+        .link {
+          width: 100%;
+          @include property-of-rem(height, 72px);
+          @include flex-content(center);
+          font-size: pxToRem(26px);
+          background-color: #fff;
+          color: rgb(102, 102, 102);
+          span {
+            @include property-of-rem(margin-left, 10px);
+          }
+        }
+      }
+
+      /* 热门搜索词汇 */
+      .hot {
+        padding-bottom: pxToRem(10px);
+        font-size: pxToRem(24px);
+        padding-top: 0px;
+
+        .keyword {
+          white-space: nowrap;
+          overflow-x: auto;
+
+          a {
+            color: #fff;
+            @include property-of-rem(margin-right, 30px);
+          }
         }
 
       }

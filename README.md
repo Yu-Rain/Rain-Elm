@@ -59,3 +59,16 @@ http://ued.ourfuture.cn/fed/4200.html
 * 商家列表
 	https://mainsite-restapi.ele.me/shopping/restaurants?latitude=38.88628159999999&longitude=121.5361539&offset=0&limit=20&extras[]=activities&terminal=h5	
 
+## shop
+* 商家头部信息
+  https://mainsite-restapi.ele.me/shopping/restaurant/761918
+  ?extras[]=activities
+  &extras[]=albums
+  &extras[]=license
+  &extras[]=identification
+  &extras[]=qualification
+  &latitude=38.88773&longitude=121.54015
+  
+  
+* 商品信息
+  https://mainsite-restapi.ele.me/shopping/v2/menu?restaurant_id=156688805
