@@ -161,6 +161,7 @@
         console.log('msite watch');
         this.initData();
         setStore('location', newValue);
+        this.$store.commit('SAVE_LOCATION', newValue);
       }
     },
 

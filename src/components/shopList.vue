@@ -3,7 +3,7 @@
 
     <!-- 商家列表 -->
     <section v-for="shop in shops" :key="shop.id" class="list-item">
-      <router-link to="">
+      <router-link :to="{path: '/shop', query: {id: shop.id}}">
         <!-- 商标 -->
         <div class="shop-logo">
           <div class="logo-img">
@@ -65,7 +65,7 @@
           <section class="shop-discount">
 
             <!-- 活动数量 -->
-            <div class="activity-count" v-if="shop.activities.length > 2" @click="activityCount">
+            <div class="activity-count" v-if="shop.activities.length > 2" @click.prevent="activityCount">
 
               <span>{{shop.activities.length}}个活动</span>
               <i class="fa fa-caret-down"></i>

@@ -8,6 +8,7 @@ const Msite = () => import(/*webpackChunkName: "msite"*/ 'pages/msite/msite');
 const Discover = () => import(/*webpackChunkName: "discover"*/ 'pages/discover/discover');
 const Order = () => import(/*webpackChunkName: "order"*/'pages/order/order');
 const Profile = () => import(/*webpackChunkName: "profile"*/'pages/profile/profile');
+const Shop = () => import(/*webpackChunkName: "shop"*/'pages/shop/shop');
 
 
 
@@ -32,7 +33,14 @@ export default [
       {
         path: '/profile',
         component: Profile
+      },
+
+      {
+        path: '/shop',
+        component: Shop
       }
+
+
     ]
   }
 

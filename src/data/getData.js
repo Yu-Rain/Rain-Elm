@@ -38,6 +38,15 @@ export const getShopList = (latitude, longitude, offset) => fetch('/shopping/res
   terminal: 'h5'
 });
 
+// 获取商家页面中商家的信息
+export const getShopMessage = (id,latitude, longitude) => fetch('/shopping/restaurant/' + id + '?extras[]=activities&extras[]=albums&extras[]=license&extras[]=identification&extras[]=qualification&latitude=' + latitude + '&longitude=' + longitude
+);
+
+// 获取商家页面中商品信息
+export const getShopGoods = (id) => fetch('/shopping/v2/menu', {
+  'restaurant_id': id,
+});
+
 
 
 

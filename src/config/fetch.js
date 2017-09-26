@@ -8,7 +8,7 @@ export default async(url='', data={}, type='GET') => {
 
   // 路径后面拼接参数
   var dataStr = '';
-  var getURL = '';
+  var getURL = url;
   Object.keys(data).forEach(key=>{
     dataStr += key + '=' + data[key] + '&';
   });

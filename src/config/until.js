@@ -18,6 +18,13 @@ function imgURL (imageHash, size){
 
 export const mixinOfImgURL = {
   methods: {
-        imgURL,
+    imgURL,
+
+    getBlurImgPath: function(imageHash, p, size) {
+      const str = imgURL(imageHash);
+      const path = str + 'format/webp/thumbnail/!' + p + 'p/blur/' + size + '/';
+      return path;
+    },
+
       }
 };
