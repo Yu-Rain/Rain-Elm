@@ -11,7 +11,7 @@ function imgURL (imageHash, size){
       var third = imageHash.substr(3);
       var imgType = imageHash.substr(32);
 
-      var path = imgBaseURL + '/' + first + '/' + second + '/' + third + '.' + imgType + '?' + 'imageMogr/thumbnail/!' + size + 'r/gravity/Center/crop/' + size + '/';
+      var path = imgBaseURL + '/' + first + '/' + second + '/' + third + '.' + imgType + '?' + 'imageMogr/';
 
       return path;
 };
