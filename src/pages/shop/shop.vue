@@ -121,13 +121,14 @@
 
               <img :src="imgURL(item.icon_url, '18x18')" alt="icon" v-if="item.icon_url">
               <span>{{item.name}}</span>
+              <span class="count" v-show="categoryCount[index]">{{categoryCount[index]}}</span>
             </li>
           </ul>
           <!---->
         </aside>
 
         <!-- 商品详细信息 -->
-        <section class="goods-menu">
+        <section class="goods-menu" v-if="goods">
 
           <div ref="menuScroller" class="menu-scroller" @scroll="menuScroll">
 
@@ -184,12 +185,23 @@
                     <!-- 购买选择 -->
                     <div class="buy">
 
+                      <!-- 减号 -->
+                      <div class="minus" v-show="foodCount[menuIndex][foodIndex]" @click="clickMinus(menuIndex, foodIndex)">
+
+                        <i class="fa fa-minus"></i>
+
+                      </div>
+
+                      <!-- 数量 -->
+                      <div class="countNumber" v-show="foodCount[menuIndex][foodIndex]">
+                        <span>{{foodCount[menuIndex][foodIndex]}}</span>
+                      </div>
                       <!-- 选规格 -->
                       <div class="select" v-if="food.specifications.length">
                         <span>选规格</span>
                       </div>
                       <!-- 加号 -->
-                      <div class="plus" v-else><i class="fa fa-plus-circle"></i></div>
+                      <div class="plus" @click="clickPlus(menuIndex, foodIndex, $event)" v-else><i class="fa fa-plus-circle"></i></div>
 
                     </div>
 
@@ -261,11 +273,27 @@ import RatingStar from "../../components/ratingStar";
         listsHeight: [], // 存储每个分类的高度
         scrollLength: 0, // 滚动过的距离
 
+        foodCount: [], // 购买数量数组, 里面元素为分类数组, 分类数组中存储各个食物对应的数量
+
+
       };
     },
 
     computed: {
       ...mapState(['location']),
+
+      categoryCount() {
+        var arr = [];
+        for (let i = 0; i < this.foodCount.length; i++) {
+          var count = 0;
+          var foods = this.foodCount[i];
+          for (let j =0; j < foods.length; j++) {
+            count += foods[j];
+          }
+          arr.push(count);
+        }
+        return arr;
+      },
 
       // 计算 头部 模糊背景图片的路径
       headerBackground() {
@@ -330,6 +358,28 @@ import RatingStar from "../../components/ratingStar";
 
       },
 
+      // 点击加号
+      clickPlus(menuIndex, foodIndex, event) {
+        console.log('加号');
+
+        // 计算数量
+        var arr = this.foodCount[menuIndex];
+        arr[foodIndex] += 1;
+        // 只有这么写才可以触发数组的响应式
+        this.$set(this.foodCount, menuIndex, arr);
+
+        this.isSelectContent = false;
+
+
+      },
+      // 点击减号
+      clickMinus(menuIndex, foodIndex) {
+        console.log('减号');
+        var arr = this.foodCount[menuIndex];
+        arr[foodIndex] -= 1;
+        this.$set(this.foodCount, menuIndex, arr);
+      },
+
       // 商品列表滚动的方法
       menuScroll() {
 
@@ -364,12 +414,9 @@ import RatingStar from "../../components/ratingStar";
       computedHeights() {
 
 
-        // 获取右侧菜单列表滚动元素.
-
-
-
         var menu = this.$refs.menuScroller;
-
+        // 获取右侧菜单列表子元素.
+//        console.log('mle', menu); // 此时menu还没有子元素.
         var menuListElement = menu.children;
 
         var height = menuListElement[0].offsetHeight;
@@ -379,19 +426,12 @@ import RatingStar from "../../components/ratingStar";
         for (let i = 1; i < menuListElement.length; i++) {
           height += menuListElement[i].offsetHeight;
           this.listsHeight.push(height);
+          console.log(i, this.listsHeight[i]);
         }
 
 
       },
 
-      clickCategory(index) {
-
-        let top = index ? this.listsHeight[index-1] : 0;
-
-        this.$refs.menuScroller.scrollTop = top;
-
-
-      },
 
 
     },
@@ -414,6 +454,14 @@ import RatingStar from "../../components/ratingStar";
       getShopGoods(this.$route.query.id).then((response)=>{
 
         console.log('goods success');
+        response.forEach((element) => {
+          console.log('foodCount');
+          var countArray = new Array(element.foods.length);
+          countArray.fill(0);
+          console.log(countArray);
+          this.foodCount.push(countArray);
+        });
+
         this.goods = response;
 
         // 获取到数据之后, 根据数据编译的HTML代码才会编译成功,存在DOM节点
@@ -421,7 +469,12 @@ import RatingStar from "../../components/ratingStar";
 
           // 在DOM加载完成后, 计算高度.
           this.computedHeights();
+
          this.shopWrapHeight = document.documentElement.offsetHeight - this.$refs.tab.offsetHeight + 'px';
+
+
+
+
         });
 
       }).catch((error)=> {
