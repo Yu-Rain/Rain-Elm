@@ -317,6 +317,19 @@
 
     </div>
 
+    <!-- 动画 小球 -->
+    <div class="ball-container">
+      <transition name="drop"
+                  v-on:before-enter="beforeEnter"
+                  v-on:enter="enter"
+                  v-on:after-enter="afterEnter">
+
+        <div class="ball" v-show="ballShow">
+          <div class="inner inner-hook" ref="innerHook"></div>
+        </div>
+      </transition>
+    </div>
+
 
   </div>
 
@@ -360,6 +373,11 @@ import RatingStar from "../../components/ratingStar";
         isSelectContent: false,
         specPrice: 0,
         specIndex: 0,
+
+
+        ballPlus: null,
+        ballShow: false,
+
       };
     },
 
@@ -455,6 +473,10 @@ import RatingStar from "../../components/ratingStar";
         this.isSelectContent = false;
         this.specIndex = 0;
 
+        // 点击加号时的元素
+        this.ballPlus = event.currentTarget;
+        this.ballShow = true; // 显示动画小球
+
 
       },
       // 点击减号
@@ -464,12 +486,6 @@ import RatingStar from "../../components/ratingStar";
         this.$set(this.foodCount, menuIndex, arr);
       },
 
-
-      clickMinus(menuIndex, foodIndex) {
-        var arr = this.foodCount[menuIndex];
-        arr[foodIndex] -= 1;
-        this.$set(this.foodCount, menuIndex, arr);
-      },
 
       // 点击选规格
       clickSelect(menuIndex, foodIndex) {
@@ -482,6 +498,7 @@ import RatingStar from "../../components/ratingStar";
         this.selectIndex.foodIndex = foodIndex;
 
       },
+
       clickSpecName(index, price) {
         this.specIndex = index;
         this.specPrice = price;
@@ -541,6 +558,50 @@ import RatingStar from "../../components/ratingStar";
 
       },
 
+      // 过渡 钩子函数
+      beforeEnter(el) {
+
+        // 获取元素位于屏幕中的位置
+        let rect = this.ballPlus.getBoundingClientRect();
+        console.log(rect);
+        let x = rect.left - 32;
+        let y = - (window.innerHeight - rect.top - 22);
+
+        // 外层元素控制y轴方向的过渡
+        el.style.webkitTransform = 'translate3d(0, ' +y+'px, 0)';
+        el.style.transform = 'translate3d(0, ' +y+'px, 0)';
+
+        // 获取里层元素
+        let inner = el.getElementsByClassName('inner-hook')[0];
+        // 里层元素控制x轴方向的过渡
+        inner.style.webkitTransform = 'translate3d('+x+'px, 0, 0)';
+        inner.style.transform = 'translate3d('+x+'px, 0, 0)';
+      },
+
+      enter(el) {
+
+        let rel = el.offsetHeight;
+        this.$nextTick(function () {
+
+          el.style.webkitTransform = 'translate3d(0, 0, 0)';
+          el.style.transform = 'translate3d(0, 0, 0)';
+
+          let inner = el.getElementsByClassName('inner-hook')[0];
+          inner.style.webkitTransform = 'translate3d(0, 0, 0)';
+          inner.style.transform = 'translate3d(0, 0, 0)';
+        });
+
+
+
+      },
+
+      afterEnter(el) {
+
+
+
+        this.ballShow = false;
+        this.isAnimation = true;
+      }
 
 
     },
@@ -1235,6 +1296,7 @@ import RatingStar from "../../components/ratingStar";
 
 
 
+    /* 购物车 */
     .car-wrap {
       width: 100%;
       position: fixed;
@@ -1316,6 +1378,41 @@ import RatingStar from "../../components/ratingStar";
 
 
     }
+
+    /* 动画 小球 */
+    .ball-container {
+
+      /* 小球 */
+      .ball {
+        /* 固定定位 */
+        position: fixed;
+        left: 54px;
+        bottom: 115px;
+        z-index: 1300;
+
+        &.drop-enter-active {
+          transition: all .5s cubic-bezier(.62,-0.5,.89,.76);
+          .inner {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: rgb(0, 160, 220);
+            transition: all .5s linear;
+          }
+
+        }
+
+
+
+      }
+
+
+
+
+    }
+
+
+
 
   }
 
