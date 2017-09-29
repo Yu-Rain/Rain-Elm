@@ -197,7 +197,7 @@
                         <span>{{foodCount[menuIndex][foodIndex]}}</span>
                       </div>
                       <!-- 选规格 -->
-                      <div class="select" v-if="food.specifications.length">
+                      <div class="select" v-if="food.specifications.length" @click="clickSelect(menuIndex, foodIndex)">
                         <span>选规格</span>
                       </div>
                       <!-- 加号 -->
@@ -211,9 +211,6 @@
               </dd>
             </dl>
           </div>
-
-
-
 
         </section>
         <!-- 商品详细信息 结束-->
@@ -237,6 +234,42 @@
       <!-- 店铺页面 结束-->
 
     </div>
+
+    <!-- 点击选规格弹出详细信息 -->
+    <transition name="fade">
+      <div class="select-modal" v-if="isSelectContent"></div>
+    </transition>
+
+    <transition name="zoom">
+      <div class="select-content" v-if="isSelectContent">
+        <h1 class="food-title">{{selectContent.name}}</h1>
+        <span class="spec-title">{{selectContent.specifications[0].name}}</span>
+        <div class="spec-name">
+          <span v-for="(name, index) in selectContent.specifications[0].values" :key="index" @click="clickSpecName(index, selectContent.specfoods[index].price)" :class="{specNameActive: (index === specIndex)}">
+            {{name}}
+          </span>
+
+        </div>
+        <div class="total">
+
+          <div class="food-price">
+            <span class="icon">¥</span>
+            <span class="price">{{specPrice}}</span>
+          </div>
+
+          <div class="selected" @click="clickPlus(selectIndex.menuIndex, selectIndex.foodIndex)">
+            <span>选好了</span>
+          </div>
+        </div>
+
+        <div class="close" @click="clickCloseSelect">
+          <i class="fa fa-close"></i>
+        </div>
+
+      </div>
+
+    </transition>
+
 
   </div>
 
@@ -274,6 +307,12 @@ import RatingStar from "../../components/ratingStar";
         scrollLength: 0, // 滚动过的距离
 
         foodCount: [], // 购买数量数组, 里面元素为分类数组, 分类数组中存储各个食物对应的数量
+
+        selectIndex: {menuIndex: 0, foodIndex: 0}, // 记录点击"选规格"时的下标.
+        selectContent: null, // 规格具体内容
+        isSelectContent: false,
+        specPrice: 0,
+        specIndex: 0,
 
 
       };
@@ -368,7 +407,9 @@ import RatingStar from "../../components/ratingStar";
         // 只有这么写才可以触发数组的响应式
         this.$set(this.foodCount, menuIndex, arr);
 
+        // 点击"选好了"
         this.isSelectContent = false;
+        this.specIndex = 0;
 
 
       },
@@ -379,6 +420,36 @@ import RatingStar from "../../components/ratingStar";
         arr[foodIndex] -= 1;
         this.$set(this.foodCount, menuIndex, arr);
       },
+
+
+      clickMinus(menuIndex, foodIndex) {
+        console.log('减号');
+        var arr = this.foodCount[menuIndex];
+        arr[foodIndex] -= 1;
+        this.$set(this.foodCount, menuIndex, arr);
+      },
+
+      // 点击选规格
+      clickSelect(menuIndex, foodIndex) {
+
+        this.selectContent = this.goods[menuIndex].foods[foodIndex];
+        this.isSelectContent = true;
+        this.specPrice = this.selectContent.specfoods[0].price;
+
+        this.selectIndex.menuIndex = menuIndex;
+        this.selectIndex.foodIndex = foodIndex;
+
+      },
+      clickSpecName(index, price) {
+        this.specIndex = index;
+        this.specPrice = price;
+
+      },
+      clickCloseSelect() {
+        this.isSelectContent = false;
+        this.specIndex = 0;
+      },
+
 
       // 商品列表滚动的方法
       menuScroll() {
@@ -455,11 +526,11 @@ import RatingStar from "../../components/ratingStar";
 
         console.log('goods success');
         response.forEach((element) => {
-          console.log('foodCount');
           var countArray = new Array(element.foods.length);
           countArray.fill(0);
           console.log(countArray);
           this.foodCount.push(countArray);
+
         });
 
         this.goods = response;
@@ -471,10 +542,6 @@ import RatingStar from "../../components/ratingStar";
           this.computedHeights();
 
          this.shopWrapHeight = document.documentElement.offsetHeight - this.$refs.tab.offsetHeight + 'px';
-
-
-
-
         });
 
       }).catch((error)=> {
@@ -1018,6 +1085,121 @@ import RatingStar from "../../components/ratingStar";
 
       }
     }
+
+    /* 点击选规格弹出详细信息 */
+    .select-modal {
+      width: 100%;
+      height: 100%;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(0, 0, 0, 0.4);
+      z-index: 1000;
+
+    }
+
+    .select-content {
+
+      /* 居中 */
+      width: pxToRem(600px);
+      background-color: #fff;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      z-index: 1001;
+      transform: translate(-50%, -50%) scale(1);
+      border-radius: pxToRem(8px);
+      /* 标题  */
+      h1.food-title {
+        text-align: center;
+        padding: pxToRem(25px, 60px);
+        font-size: pxToRem(32px);
+        /*color: #333;*/
+      }
+      .spec-title {
+        color: #666;
+        font-size: pxToRem(26px);
+        padding: pxToRem(0px, 30px);
+      }
+
+      .spec-name {
+        padding: pxToRem(0px, 30px);
+        span {
+          color: #666;
+          display: inline-block;
+          height: pxToRem(48px);
+          line-height: pxToRem(48px);
+          border: 1px solid #999;
+          border-radius: pxToRem(40px);
+          vertical-align: middle;
+          padding: pxToRem(0px,18px);
+          margin-right: pxToRem(30px);
+          margin-top: pxToRem(13px);
+
+          &.specNameActive {
+            color: #3199e8;
+            border-color: #3199e8;
+          }
+        }
+
+      }
+
+      .total {
+        background-color: #f9f9f9;
+        margin-top: pxToRem(40px);
+        padding: pxToRem(25px, 30px);
+        @include flex-content();
+
+        /* 食物价格*/
+        .food-price {
+          color: #f60;
+          font-size: 24px;
+
+          .price {
+            color: #f60;
+            font-size: pxToRem(42px);
+            font-weight: 700;
+            margin-right: pxToRem(4px);
+          }
+
+        }
+
+        .selected {
+          padding: pxToRem(0px, 25px);
+          line-height: pxToRem(65px);
+          background-color: #3199e8;
+          color: #fff;
+          border-radius: pxToRem(6px);
+          font-size: pxToRem(28px);
+        }
+
+      }
+
+      .close {
+        position: fixed;
+        top: pxToRem(15px);
+        right: pxToRem(15px);
+        font-size: 48px;
+      }
+
+
+
+
+    }
+
+    .zoom-enter-active, .zoom-leave-active {
+      transition: all .3s ease-in-out;
+    }
+    .zoom-enter, .zoom-leave-to {
+      transform: translate(-50%, -50%) scale(0);
+    }
+
+    .zoom-enter-to, .zoom-leave {
+      transform: translate(-50%, -50%) scale(1);
+    }
+
 
 
 
