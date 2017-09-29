@@ -319,15 +319,15 @@
 
     <!-- 动画 小球 -->
     <div class="ball-container">
-      <transition name="drop"
+      <transition-group tag="div" name="drop"
                   v-on:before-enter="beforeEnter"
                   v-on:enter="enter"
                   v-on:after-enter="afterEnter">
 
-        <div class="ball" v-show="ballShow">
+        <div class="ball" v-for="(ball, index) in balls" v-show="ball.show" :key="index">
           <div class="inner inner-hook" ref="innerHook"></div>
         </div>
-      </transition>
+      </transition-group>
     </div>
 
 
@@ -376,7 +376,28 @@ import RatingStar from "../../components/ratingStar";
 
 
         ballPlus: null,
-        ballShow: false,
+//        ballShow: false,
+        balls: [
+          {
+            show: false,
+          },
+          {
+            show: false,
+          },
+          {
+            show: false,
+          },
+          {
+            show: false,
+          },
+          {
+            show: false,
+          },
+          {
+            show: false,
+          },
+        ],
+        dropBalls: [],
 
       };
     },
@@ -474,8 +495,9 @@ import RatingStar from "../../components/ratingStar";
         this.specIndex = 0;
 
         // 点击加号时的元素
-        this.ballPlus = event.currentTarget;
-        this.ballShow = true; // 显示动画小球
+//        this.ballPlus = event.currentTarget;
+//        this.ballShow = true; // 显示动画小球
+        this.drop(event.currentTarget);
 
 
       },
@@ -558,28 +580,56 @@ import RatingStar from "../../components/ratingStar";
 
       },
 
+      // 遍历小球数组, 更改小球显示
+      drop(el) {
+        for (let i=0; i< this.balls.length; i++){
+          let ball = this.balls[i];
+          if (!ball.show) {
+            ball.show = true;
+            ball.el = el;
+            this.dropBalls.push(ball);
+            return;
+          }
+        }
+      },
+
       // 过渡 钩子函数
       beforeEnter(el) {
 
-        // 获取元素位于屏幕中的位置
-        let rect = this.ballPlus.getBoundingClientRect();
-        console.log(rect);
-        let x = rect.left - 32;
-        let y = - (window.innerHeight - rect.top - 22);
+        console.log('beforeEnter');
 
-        // 外层元素控制y轴方向的过渡
-        el.style.webkitTransform = 'translate3d(0, ' +y+'px, 0)';
-        el.style.transform = 'translate3d(0, ' +y+'px, 0)';
+        let count = this.balls.length;
 
-        // 获取里层元素
-        let inner = el.getElementsByClassName('inner-hook')[0];
-        // 里层元素控制x轴方向的过渡
-        inner.style.webkitTransform = 'translate3d('+x+'px, 0, 0)';
-        inner.style.transform = 'translate3d('+x+'px, 0, 0)';
+
+        while (count--) {
+            let ball = this.balls[count];
+            if (ball.show) {
+              // 获取元素位于屏幕中的位置
+              let rect = ball.el.getBoundingClientRect();
+              console.log(rect);
+              let x = rect.left - 74;
+              let y = - (window.innerHeight - rect.top - 141);
+
+              // 外层元素控制y轴方向的过渡
+              el.style.webkitTransform = 'translate3d(0, ' +y+'px, 0)';
+              el.style.transform = 'translate3d(0, ' +y+'px, 0)';
+
+              // 获取里层元素
+              let inner = el.getElementsByClassName('inner-hook')[0];
+              // 里层元素控制x轴方向的过渡
+              inner.style.webkitTransform = 'translate3d('+x+'px, 0, 0)';
+              inner.style.transform = 'translate3d('+x+'px, 0, 0)';
+            }
+          }
+
+
+
+
       },
 
       enter(el) {
 
+        console.log('enter');
         let rel = el.offsetHeight;
         this.$nextTick(function () {
 
@@ -597,9 +647,15 @@ import RatingStar from "../../components/ratingStar";
 
       afterEnter(el) {
 
+        console.log('afterEnter');
+
+        let ball = this.dropBalls.shift();
+        if (ball) {
+          ball.show = false;
+        }
 
 
-        this.ballShow = false;
+//        this.ballShow = false;
         this.isAnimation = true;
       }
 
