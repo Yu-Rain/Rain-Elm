@@ -281,7 +281,7 @@
       <div class="car-bottom">
 
         <!-- 购物车图标 -->
-        <div ref="carIcon" class="car-icon">
+        <div ref="carIcon" class="car-icon" @animationend="removeAnimation" :class="{'car-icon-animation': isAnimation}">
 
           <i class="fa fa-shopping-cart"></i>
           <span class="car-icon-count">0</span>
@@ -398,6 +398,7 @@ import RatingStar from "../../components/ratingStar";
           },
         ],
         dropBalls: [],
+        isAnimation: false,
 
       };
     },
@@ -657,6 +658,11 @@ import RatingStar from "../../components/ratingStar";
 
 //        this.ballShow = false;
         this.isAnimation = true;
+
+      },
+
+      removeAnimation() {
+        this.isAnimation = false;
       }
 
 
@@ -850,7 +856,7 @@ import RatingStar from "../../components/ratingStar";
       left: 0;
       right: 0;
       bottom: 0;
-      z-index: 1000;
+      z-index: 2000;
       color: #fff;
       @include property-of-rem('padding', 80px, 60px, 180px);
 
@@ -1360,7 +1366,7 @@ import RatingStar from "../../components/ratingStar";
       left: 0;
       right: 0;
 
-      z-index: 2000;
+      z-index: 1500;
 
 
 
@@ -1465,6 +1471,18 @@ import RatingStar from "../../components/ratingStar";
 
 
 
+    }
+
+    .car-icon-animation {
+      animation: drop-car 0.5s;
+    }
+
+    @keyframes drop-car {
+      0%   { transform: scale(1) }
+      25%  { transform: scale(.8) }
+      50%  { transform: scale(1.1) }
+      75%  { transform: scale(.9) }
+      100% { transform: scale(1) }
     }
 
 
