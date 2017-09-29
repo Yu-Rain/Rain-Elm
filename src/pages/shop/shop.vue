@@ -3,7 +3,7 @@
   <div id="shop">
 
     <!-- 头部 -->
-    <div ref="header" class="header">
+    <div ref="header" class="header" v-if="message">
 
       <!-- 头部背景图片 -->
       <div class="header-background" :style="{backgroundImage: headerBackground}" v-if="message.image_path"></div>
@@ -27,7 +27,7 @@
               /
               <span>{{message.order_lead_time}}分钟送达</span>
               /
-              <span v-if="message.piecewise_agent_fee">{{message.piecewise_agent_fee.tips}}</span>
+              <span>{{message.piecewise_agent_fee.tips}}</span>
             </div>
             <div class="notice">
               <span>公告: </span>
@@ -52,7 +52,7 @@
     <!-- 覆盖层 -->
     <transition name="fade">
 
-      <div class="modal-message" v-show="modalShow">
+      <div class="modal-message" v-show="modalShow" v-if="message">
 
         <!-- 头部标题和星级 -->
         <div class="modal-header">
@@ -271,6 +271,53 @@
     </transition>
 
 
+    <!-- 底部 结算-->
+    <div class="car-wrap">
+
+      <div class="car-list">
+      </div>
+
+
+      <div class="car-bottom">
+
+        <!-- 购物车图标 -->
+        <div ref="carIcon" class="car-icon">
+
+          <i class="fa fa-shopping-cart"></i>
+          <span class="car-icon-count">0</span>
+
+        </div>
+
+        <!-- 总价格 -->
+        <div class="total-price">
+          <p class="price-num">
+            <span>¥0</span>
+          </p>
+          <p class="delivery-fee" v-if="message">
+            {{message.piecewise_agent_fee.tips}}
+          </p>
+        </div>
+
+        <!-- 起送价格  -->
+        <div class="settlement" v-if="message">
+
+          <div class="less-price">
+            <span>¥{{message.float_minimum_order_amount}}起送</span>
+          </div>
+
+          <div>
+
+          </div>
+
+
+        </div>
+
+
+      </div>
+
+    </div>
+
+
   </div>
 
 </template>
@@ -297,7 +344,7 @@ import RatingStar from "../../components/ratingStar";
     data() {
       return {
         shopWrapHeight: 0, // shop-wrap的高度
-        message: {}, // 商家信息
+        message: null, // 商家信息
         goods: [], // 商品信息
         modalShow: false, // 是否显示覆盖层
         isGoods: true,
@@ -313,8 +360,6 @@ import RatingStar from "../../components/ratingStar";
         isSelectContent: false,
         specPrice: 0,
         specIndex: 0,
-
-
       };
     },
 
@@ -399,7 +444,6 @@ import RatingStar from "../../components/ratingStar";
 
       // 点击加号
       clickPlus(menuIndex, foodIndex, event) {
-        console.log('加号');
 
         // 计算数量
         var arr = this.foodCount[menuIndex];
@@ -415,7 +459,6 @@ import RatingStar from "../../components/ratingStar";
       },
       // 点击减号
       clickMinus(menuIndex, foodIndex) {
-        console.log('减号');
         var arr = this.foodCount[menuIndex];
         arr[foodIndex] -= 1;
         this.$set(this.foodCount, menuIndex, arr);
@@ -423,7 +466,6 @@ import RatingStar from "../../components/ratingStar";
 
 
       clickMinus(menuIndex, foodIndex) {
-        console.log('减号');
         var arr = this.foodCount[menuIndex];
         arr[foodIndex] -= 1;
         this.$set(this.foodCount, menuIndex, arr);
@@ -449,7 +491,6 @@ import RatingStar from "../../components/ratingStar";
         this.isSelectContent = false;
         this.specIndex = 0;
       },
-
 
       // 商品列表滚动的方法
       menuScroll() {
@@ -487,17 +528,14 @@ import RatingStar from "../../components/ratingStar";
 
         var menu = this.$refs.menuScroller;
         // 获取右侧菜单列表子元素.
-//        console.log('mle', menu); // 此时menu还没有子元素.
         var menuListElement = menu.children;
 
         var height = menuListElement[0].offsetHeight;
         this.listsHeight.push(height);
-        console.log('0', this.listsHeight[0]);
 
         for (let i = 1; i < menuListElement.length; i++) {
           height += menuListElement[i].offsetHeight;
           this.listsHeight.push(height);
-          console.log(i, this.listsHeight[i]);
         }
 
 
@@ -508,8 +546,6 @@ import RatingStar from "../../components/ratingStar";
     },
 
     mixins: [mixinOfImgURL],
-
-
 
     mounted() {
 
@@ -523,12 +559,9 @@ import RatingStar from "../../components/ratingStar";
 
       // 获取商品信息.
       getShopGoods(this.$route.query.id).then((response)=>{
-
-        console.log('goods success');
         response.forEach((element) => {
           var countArray = new Array(element.foods.length);
           countArray.fill(0);
-          console.log(countArray);
           this.foodCount.push(countArray);
 
         });
@@ -854,8 +887,8 @@ import RatingStar from "../../components/ratingStar";
                 background-color: #ff461d;
                 padding-left: pxToRem(8px);
                 padding-right: pxToRem(8px);
-                border-radius: 50%;
-                line-height: 28px;
+                border-radius: pxToRem(15px);
+                line-height: pxToRem(28px);
 
 
 
@@ -1202,6 +1235,87 @@ import RatingStar from "../../components/ratingStar";
 
 
 
+    .car-wrap {
+      width: 100%;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+
+      z-index: 2000;
+
+
+
+      .car-bottom {
+        height: pxToRem(96px);
+        background-color: rgba(61,61,63,.9);
+        padding-left: pxToRem(158px);
+
+        @include flex-content(flex-start);
+        .car-icon {
+          text-align: center;
+          width: pxToRem(100px);
+          height: pxToRem(100px);
+          line-height: pxToRem(80px);
+          border: pxToRem(10px) solid rgb(68, 68, 68);
+          border-radius: 50%;
+          background-color: #333;
+          color: #666;
+          position: absolute;
+          left: pxToRem(24px);
+          bottom: pxToRem(15px);
+          font-size: pxToRem(48px);
+
+          .car-icon-count {
+            position: absolute;
+            top: pxToRem(-9px);
+            right: pxToRem(-9px);
+            font-size: pxToRem(20px);
+            color: #fff;
+            background-color: #ff461d;
+
+            @include property-of-rem('padding', 4px, 9px);
+            border-radius: pxToRem(24px);
+            line-height: 1;
+          }
+        }
+
+        .highlight {
+          background-color: #3190e8;
+          color: #fff;
+        }
+
+        .total-price {
+          color: #fff;
+          flex: 1;
+
+          .price-num {
+            font-size: pxToRem(36px);
+          }
+          .delivery-fee {
+            font-size: pxToRem(20px);
+          }
+
+
+
+        }
+
+        .settlement {
+          color: #fff;
+          font-size: pxToRem(30px);
+          font-weight: 700;
+          background-color: #535356;
+          width: pxToRem(210px);
+          height: 100%;
+          @include flex-content(center);
+        }
+
+
+
+      }
+
+
+    }
 
   }
 
