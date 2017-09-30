@@ -274,11 +274,59 @@
     <!-- 底部 结算-->
     <div class="car-wrap">
 
-      <div class="car-list">
-      </div>
+      <transition name="fade">
+        <div class="car-modal" v-show="isCarList" @click="isCarList=false">
+
+        </div>
+      </transition>
+
+      <!-- 购物车列表 -->
+      <transition name="push">
+        <div class="car" v-show="isCarList">
+            <!-- 购物车标题 -->
+            <div class="car-header">
+              <span class="car-title">购物车</span>
+              <span class="clear-car">
+              <i class="fa fa-trash-o"></i>
+              <span>清空</span>
+          </span>
+            </div>
+            <!-- 购物车标题 结束-->
+
+            <!-- 购物车商品列表 -->
+            <ul class="car-list">
+
+              <li v-for="n in 10" :key="n" class="car-list-item">
+
+                <!-- 商品名称 规格 -->
+                <div class="food-message">
+                  <p class="food-name">麻辣班级家</p>
+                  <p class="food-spec">大份</p>
+                </div>
+
+                <!-- 商品价格 -->
+                <div class="food-price">
+                  <span class="original-price">¥16</span>
+                  <span class="price">¥14</span>
+                </div>
+
+                <!-- 商品购买数量 -->
+                <div class="buy-count">
 
 
-      <div class="car-bottom">
+                </div>
+              </li>
+
+            </ul>
+            <!-- 购物车商品列表 结束 -->
+          </div>
+      </transition>
+
+      <!-- 购物车列表 -->
+
+
+
+      <div class="car-bottom" @click="isCarList=!isCarList;">
 
         <!-- 购物车图标 -->
         <div ref="carIcon" class="car-icon" @animationend="removeAnimation" :class="{'car-icon-animation': isAnimation}">
@@ -399,6 +447,9 @@ import RatingStar from "../../components/ratingStar";
         ],
         dropBalls: [],
         isAnimation: false,
+
+        isCarList: false,
+
 
       };
     },
@@ -531,6 +582,8 @@ import RatingStar from "../../components/ratingStar";
         this.isSelectContent = false;
         this.specIndex = 0;
       },
+
+
 
       // 商品列表滚动的方法
       menuScroll() {
@@ -1365,12 +1418,83 @@ import RatingStar from "../../components/ratingStar";
       bottom: 0;
       left: 0;
       right: 0;
-
       z-index: 1500;
 
+      /* 购物车模态 */
+      .car-modal {
+        width: 100%;
+        height: 100%;
+        position: fixed;
+        top:0;
+        left: 0;
+        bottom: 0;
+        right: 0;
+        background-color: rgba(0,0,0,0.4);
+        z-index: 10;
+      }
+
+      /* 购物车列表 */
+      .car {
+          position: relative;
+        z-index: 100;
+
+          background-color: #fff;
+          width: 100%;
+          .car-header {
+            padding: pxToRem(0px, 25px);
+            line-height: pxToRem(80px);
+            background-color: #eceff1;
+            border-bottom: 1px solid #ddd;
+            color: #666;
+            .car-title {
+              padding-left: pxToRem(10px);
+              border-left: pxToRem(7px) solid #3190e8;
+              font-size: pxToRem(32px);
+            }
+
+            .clear-car {
+              float: right;
+              font-size: pxToRem(26px);
+            }
 
 
+          }
+
+          .car-list {
+            max-height: pxToRem(600px);
+            overflow-y: scroll;
+
+            .car-list-item {
+              padding: pxToRem(15px, 25px, 15px, 0px);
+              margin-left: pxToRem(25px);
+              border-bottom: 1px solid #eee;
+              @include flex-content(flex-start);
+
+              .food-message {
+
+                .food-name {
+                  max-width: pxToRem(350px);
+                  font-size: pxToRem(32px);
+                  white-space: nowrap;
+                  overflow: hidden;
+                  text-overflow: ellipsis;
+                }
+
+              }
+
+
+            }
+          }
+
+
+
+
+        }
+
+      /* 购物车底部结算 */
       .car-bottom {
+        position: relative;
+        z-index: 1000;
         height: pxToRem(96px);
         background-color: rgba(61,61,63,.9);
         padding-left: pxToRem(158px);
@@ -1438,7 +1562,6 @@ import RatingStar from "../../components/ratingStar";
 
       }
 
-
     }
 
     /* 动画 小球 */
@@ -1484,6 +1607,19 @@ import RatingStar from "../../components/ratingStar";
       75%  { transform: scale(.9) }
       100% { transform: scale(1) }
     }
+
+    /* 购物车列表 过渡 */
+    .push-enter-active, .push-leave-active {
+      transition: all .3s ease;
+    }
+    .push-enter, .push-leave-to {
+      transform: translateY(100%);
+    }
+
+    .push-enter-to, .push-leave {
+      transform: translateY(0);
+    }
+
 
 
 
