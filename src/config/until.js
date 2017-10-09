@@ -1,7 +1,7 @@
 let imgBaseURL = 'https://fuss10.elemecdn.com';
 
 // 根据img hash值处理图片路径.
-function imgURL (imageHash, size){
+function imgPath (imageHash, size){
       if (!imageHash) {
         return;
       }
@@ -18,11 +18,16 @@ function imgURL (imageHash, size){
 
 export const mixinOfImgURL = {
   methods: {
-    imgURL,
+    imgURL: function (imageHash, size) {
+      const url = imgPath(imageHash);
+      // console.log('imgURL: ', url + 'format/webp/thumbnail/!'+size+'r/gravity/Center/crop/'+size+'/');
+      return url + 'format/webp/thumbnail/!'+size+'r/gravity/Center/crop/'+size+'/';
+    },
 
     getBlurImgPath: function(imageHash, p, size) {
-      const str = imgURL(imageHash);
+      const str = imgPath(imageHash);
       const path = str + 'format/webp/thumbnail/!' + p + 'p/blur/' + size + '/';
+      // console.log('path', path);
       return path;
     },
 

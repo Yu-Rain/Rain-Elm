@@ -275,44 +275,44 @@
     <div class="car-wrap">
 
       <transition name="fade">
-        <div class="car-modal" v-show="isCarList" @click="isCarList=false">
+        <div class="car-modal" v-show="isCarList" @click="isCarList=false" v-if="shopCarList">
 
         </div>
       </transition>
 
       <!-- 购物车列表 -->
       <transition name="push">
-        <div class="car" v-show="isCarList">
+        <div class="car" v-show="isCarList" v-if="shopCarList">
             <!-- 购物车标题 -->
             <div class="car-header">
               <span class="car-title">购物车</span>
-              <span class="clear-car">
-              <i class="fa fa-trash-o"></i>
-              <span>清空</span>
-          </span>
+              <span class="clear-car" @click="clickClear">
+                <i class="fa fa-trash-o"></i>
+                <span>清空</span>
+              </span>
             </div>
             <!-- 购物车标题 结束-->
 
             <!-- 购物车商品列表 -->
             <ul class="car-list">
 
-              <li v-for="n in 10" :key="n" class="car-list-item">
+              <li v-for="(food, foodId) in shopCarList" :key="foodId" class="car-list-item">
 
                 <!-- 商品名称 规格 -->
                 <div class="food-message">
-                  <p class="food-name">麻辣班级家</p>
-                  <p class="food-spec">大份</p>
+                  <p class="food-name">{{food.name}}</p>
+                  <p class="food-spec" v-if="food.spec">{{food.spec[0].name}}</p>
                 </div>
 
                 <!-- 商品价格 -->
                 <div class="food-price">
-                  <span class="original-price">¥16</span>
-                  <span class="price">¥14</span>
+                  <span class="original-price">{{food.original_price}}</span>
+                  <span class="price">{{food.price}}</span>
                 </div>
 
                 <!-- 商品购买数量 -->
                 <div class="buy-count">
-
+                  {{food.count}}
 
                 </div>
               </li>
@@ -321,10 +321,6 @@
             <!-- 购物车商品列表 结束 -->
           </div>
       </transition>
-
-      <!-- 购物车列表 -->
-
-
 
       <div class="car-bottom" @click="isCarList=!isCarList;">
 
@@ -394,7 +390,7 @@ import {
   mixinOfImgURL
 } from '@/config/until';
 
-import {mapState} from 'vuex';
+import {mapState, mapMutations} from 'vuex';
 
 
 import activity from '@/components/activity';
@@ -447,15 +443,21 @@ import RatingStar from "../../components/ratingStar";
         ],
         dropBalls: [],
         isAnimation: false,
-
         isCarList: false,
 
-
+        shopId: this.$route.query.id,
       };
     },
 
     computed: {
-      ...mapState(['location']),
+      ...mapState(['location', 'carList']),
+
+      // 当前商家购物车列表.
+      shopCarList() {
+        console.log('carList');
+        console.log(this.carList[this.shopId]);
+        return this.carList[this.shopId];
+      },
 
       categoryCount() {
         var arr = [];
@@ -487,6 +489,7 @@ import RatingStar from "../../components/ratingStar";
         }
       }
 
+
     },
 
     components: {
@@ -495,6 +498,27 @@ import RatingStar from "../../components/ratingStar";
 
 
     methods: {
+      ...mapMutations(['ADD_CAR', 'REDUCE_CAR', 'CLEAR_CAR']),
+
+      addFood(foodId, name, original_price, price, spec) {
+        this.ADD_CAR({shopId: this.shopId, foodId, name, original_price, price, spec});
+
+      },
+
+      // 清空购物车
+      clickClear() {
+        console.log('clickClear');
+        this.CLEAR_CAR(this.shopId);
+
+        // 清除分类和食物数量.
+        let clear = [];
+        for (let i=0; i < this.foodCount.length; i++) {
+          let arr = this.foodCount[i];
+          arr.fill(0);
+          clear.push(arr);
+        }
+        this.foodCount = [...clear];
+      },
 
       // 头部点击活动数量的方法.
       modalMessage() {
@@ -535,6 +559,7 @@ import RatingStar from "../../components/ratingStar";
 
       // 点击加号
       clickPlus(menuIndex, foodIndex, event) {
+        console.log('加号');
 
         // 计算数量
         var arr = this.foodCount[menuIndex];
@@ -542,24 +567,40 @@ import RatingStar from "../../components/ratingStar";
         // 只有这么写才可以触发数组的响应式
         this.$set(this.foodCount, menuIndex, arr);
 
+        console.log('1');
         // 点击"选好了"
         this.isSelectContent = false;
         this.specIndex = 0;
+        console.log('2');
+
 
         // 点击加号时的元素
 //        this.ballPlus = event.currentTarget;
 //        this.ballShow = true; // 显示动画小球
-        this.drop(event.currentTarget);
+        if (event) {
+          this.drop(event.currentTarget);
+        }
+
+        console.log('3');
+
+        // 将商品信息添加到购物车(vuex)
+
+        let food = this.goods[menuIndex].foods[foodIndex].specfoods[this.specIndex];
+
+        console.log('4');
+        this.addFood(food.food_id, food.name, food.original_price, food.price, food.spec);
+        console.log(this.carList);
+        console.log('5');
 
 
       },
+
       // 点击减号
       clickMinus(menuIndex, foodIndex) {
         var arr = this.foodCount[menuIndex];
         arr[foodIndex] -= 1;
         this.$set(this.foodCount, menuIndex, arr);
       },
-
 
       // 点击选规格
       clickSelect(menuIndex, foodIndex) {
@@ -578,12 +619,11 @@ import RatingStar from "../../components/ratingStar";
         this.specPrice = price;
 
       },
+
       clickCloseSelect() {
         this.isSelectContent = false;
         this.specIndex = 0;
       },
-
-
 
       // 商品列表滚动的方法
       menuScroll() {
@@ -650,8 +690,6 @@ import RatingStar from "../../components/ratingStar";
       // 过渡 钩子函数
       beforeEnter(el) {
 
-        console.log('beforeEnter');
-
         let count = this.balls.length;
 
 
@@ -660,7 +698,6 @@ import RatingStar from "../../components/ratingStar";
             if (ball.show) {
               // 获取元素位于屏幕中的位置
               let rect = ball.el.getBoundingClientRect();
-              console.log(rect);
               let x = rect.left - 74;
               let y = - (window.innerHeight - rect.top - 141);
 
@@ -683,7 +720,6 @@ import RatingStar from "../../components/ratingStar";
 
       enter(el) {
 
-        console.log('enter');
         let rel = el.offsetHeight;
         this.$nextTick(function () {
 
@@ -700,8 +736,6 @@ import RatingStar from "../../components/ratingStar";
       },
 
       afterEnter(el) {
-
-        console.log('afterEnter');
 
         let ball = this.dropBalls.shift();
         if (ball) {
@@ -909,7 +943,7 @@ import RatingStar from "../../components/ratingStar";
       left: 0;
       right: 0;
       bottom: 0;
-      z-index: 2000;
+      z-index: 1000;
       color: #fff;
       @include property-of-rem('padding', 80px, 60px, 180px);
 
@@ -1418,7 +1452,7 @@ import RatingStar from "../../components/ratingStar";
       bottom: 0;
       left: 0;
       right: 0;
-      z-index: 1500;
+      z-index: 2000;
 
       /* 购物车模态 */
       .car-modal {
