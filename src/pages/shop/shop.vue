@@ -296,7 +296,7 @@
             <!-- 购物车商品列表 -->
             <ul class="car-list">
 
-              <li v-for="(food, foodId) in shopCarList" :key="foodId" class="car-list-item">
+              <li v-for="(food, foodId) in shopCarList" :key="foodId" v-if="food" class="car-list-item">
 
                 <!-- 商品名称 规格 -->
                 <div class="food-message">
@@ -306,15 +306,31 @@
 
                 <!-- 商品价格 -->
                 <div class="food-price">
-                  <span class="original-price">{{food.original_price}}</span>
-                  <span class="price">{{food.price}}</span>
+                  <!--<span class="original-price" v-if="food.original_price">¥{{food.original_price}}</span>-->
+                  <span class="price">¥{{(food.count * Math.round(food.price * 100)) / 100}}</span>
                 </div>
 
                 <!-- 商品购买数量 -->
                 <div class="buy-count">
-                  {{food.count}}
+
+                    <!-- 减号 -->
+                    <div class="minus" @click="clickMinus(food.menuIndex, food.foodIndex)">
+
+                      <i class="fa fa-minus"></i>
+
+                    </div>
+
+                    <!-- 数量 -->
+                    <div class="countNumber">
+                      <span>{{food.count}}</span>
+                    </div>
+
+                    <!-- 加号 -->
+                    <div class="plus" @click="clickPlus(food.menuIndex, food.foodIndex)"><i class="fa fa-plus-circle"></i></div>
+
 
                 </div>
+
               </li>
 
             </ul>
@@ -325,17 +341,17 @@
       <div class="car-bottom" @click="isCarList=!isCarList;">
 
         <!-- 购物车图标 -->
-        <div ref="carIcon" class="car-icon" @animationend="removeAnimation" :class="{'car-icon-animation': isAnimation}">
+        <div ref="carIcon" class="car-icon" @animationend="removeAnimation" :class="{'car-icon-animation': isAnimation, 'highlight': shopCarList}">
 
           <i class="fa fa-shopping-cart"></i>
-          <span class="car-icon-count">0</span>
+          <span class="car-icon-count" v-if="shopCarList">{{shopCarListCount}}</span>
 
         </div>
 
         <!-- 总价格 -->
         <div class="total-price">
           <p class="price-num">
-            <span>¥0</span>
+            <span>¥{{allPrice}}</span>
           </p>
           <p class="delivery-fee" v-if="message">
             {{message.piecewise_agent_fee.tips}}
@@ -345,9 +361,13 @@
         <!-- 起送价格  -->
         <div class="settlement" v-if="message">
 
-          <div class="less-price">
+          <div class="less-price" v-if="message.float_minimum_order_amount > allPrice">
             <span>¥{{message.float_minimum_order_amount}}起送</span>
           </div>
+
+          <button v-else class="settlement-btn" @click="$router.push({path: '/checkout', query: {id: shopId}})">
+            <span>去结算</span>
+          </button>
 
           <div>
 
@@ -355,7 +375,6 @@
 
 
         </div>
-
 
       </div>
 
@@ -454,9 +473,35 @@ import RatingStar from "../../components/ratingStar";
 
       // 当前商家购物车列表.
       shopCarList() {
-        console.log('carList');
-        console.log(this.carList[this.shopId]);
+
         return this.carList[this.shopId];
+      },
+
+      // 当前商家购物车商品数量
+      shopCarListCount() {
+        let count = 0;
+        Object.values(this.carList[this.shopId]).forEach(function (food) {
+          count += food.count;
+        });
+
+        return count;
+
+      },
+
+      // 总价格
+      allPrice() {
+        let price = 0;
+        if (this.carList[this.shopId]) {
+
+          Object.values(this.carList[this.shopId]).forEach(function (food) {
+
+            price += food.count * Math.round(food.price * 100);
+
+          });
+          return price / 100;
+        }
+
+        return price;
       },
 
       categoryCount() {
@@ -498,10 +543,14 @@ import RatingStar from "../../components/ratingStar";
 
 
     methods: {
+
       ...mapMutations(['ADD_CAR', 'REDUCE_CAR', 'CLEAR_CAR']),
 
-      addFood(foodId, name, original_price, price, spec) {
-        this.ADD_CAR({shopId: this.shopId, foodId, name, original_price, price, spec});
+
+      addFood(foodId, name, original_price, price, spec, menuIndex, foodIndex) {
+
+
+        this.ADD_CAR({shopId: this.shopId, foodId, name, original_price, price, spec, menuIndex, foodIndex});
 
       },
 
@@ -518,6 +567,11 @@ import RatingStar from "../../components/ratingStar";
           clear.push(arr);
         }
         this.foodCount = [...clear];
+      },
+
+      // 点击去结算
+      clickSettlement() {
+        console.log('去结算');
       },
 
       // 头部点击活动数量的方法.
@@ -567,11 +621,9 @@ import RatingStar from "../../components/ratingStar";
         // 只有这么写才可以触发数组的响应式
         this.$set(this.foodCount, menuIndex, arr);
 
-        console.log('1');
         // 点击"选好了"
         this.isSelectContent = false;
-        this.specIndex = 0;
-        console.log('2');
+
 
 
         // 点击加号时的元素
@@ -581,17 +633,15 @@ import RatingStar from "../../components/ratingStar";
           this.drop(event.currentTarget);
         }
 
-        console.log('3');
 
         // 将商品信息添加到购物车(vuex)
 
         let food = this.goods[menuIndex].foods[foodIndex].specfoods[this.specIndex];
 
-        console.log('4');
-        this.addFood(food.food_id, food.name, food.original_price, food.price, food.spec);
-        console.log(this.carList);
-        console.log('5');
 
+        this.addFood(food.food_id, food.name, food.original_price, food.price, food.spec, menuIndex, foodIndex);
+
+        this.specIndex = 0;
 
       },
 
@@ -600,6 +650,12 @@ import RatingStar from "../../components/ratingStar";
         var arr = this.foodCount[menuIndex];
         arr[foodIndex] -= 1;
         this.$set(this.foodCount, menuIndex, arr);
+
+        let food = this.goods[menuIndex].foods[foodIndex].specfoods[this.specIndex];
+        console.log('减号');
+
+        this.REDUCE_CAR({shopId: this.shopId, foodId: food.food_id});
+
       },
 
       // 点击选规格
@@ -1505,6 +1561,7 @@ import RatingStar from "../../components/ratingStar";
               @include flex-content(flex-start);
 
               .food-message {
+                flex: 5.5;
 
                 .food-name {
                   max-width: pxToRem(350px);
@@ -1512,7 +1569,52 @@ import RatingStar from "../../components/ratingStar";
                   white-space: nowrap;
                   overflow: hidden;
                   text-overflow: ellipsis;
+
                 }
+
+
+
+              }
+              .food-price {
+                flex: 2.5;
+                color: #f60;
+                text-align: right;
+                white-space: nowrap;
+                font-weight: 700;
+                text-align: right;
+              }
+              .buy-count {
+                flex: 3;
+                text-align: right;
+                @include flex-content(flex-end);
+
+                /* 减号 */
+                .minus {
+                  color: #3199e8;
+                  font-size: pxToRem(30px);
+                  width: pxToRem(38px);
+                  height: pxToRem(38px);
+                  border-radius: 50%;
+                  border: 2px solid #3199e8;
+                  text-align: center;
+                  line-height: 38px;
+
+                }
+
+                /* 数量 */
+                .countNumber {
+
+                  font-size: pxToRem(28px);
+                  @include property-of-rem('margin', 0px, 20px);
+
+                }
+
+                /* 加号 */
+                .plus {
+                  color: #3199e8;
+                  font-size: pxToRem(44px);
+                }
+
 
               }
 
@@ -1590,6 +1692,18 @@ import RatingStar from "../../components/ratingStar";
           width: pxToRem(210px);
           height: 100%;
           @include flex-content(center);
+
+          .settlement-btn {
+            display: block;
+            width: 100%;
+            height: 100%;
+            color: #fff;
+            background-color: #4cd964;
+            font-size: pxToRem(30px);
+            text-align: center;
+            line-height: pxToRem(96px);
+          }
+
         }
 
 

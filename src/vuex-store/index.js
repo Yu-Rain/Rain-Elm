@@ -8,6 +8,7 @@ Vue.use(Vuex);
 const state = {
   location: null, // 经纬度坐标值
   carList: {}, // 加入购物车的商品列表.
+
 };
 
 export default new Vuex.Store({
